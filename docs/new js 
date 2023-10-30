@@ -1,0 +1,28 @@
+link output
+$(OUTPUT_DIRECTORY)/$(OUTPUT): $(OBJ_FILES)
+	@echo
+ifeq ($(V), 0)
+	@echo  -e 'LINK\t$(OUTPUT)'
+endif
+	$(SUPPRESS_CMD)$(LINK) -o $(OUTPUT_DIRECTORY)/$(OUTPUT) $(OBJ_FILES) $(LINK_FLAGS) $(PIPE)
+	@echo
+
+# compile code files
+$(OUTPUT_DIRECTORY)/$(OBJ_DIR)/%.o: %.c Makefile
+ifeq ($(V), 0)
+	@echo  -e 'CC\t$<'
+endif
+	@mkdir -p '$(dir $@)'
+	$(SUPPRESS_CMD)$(CC) -c $< -o $@ $(DEP_FLAGS) $(C_FLAGS) $(foreach dir,$(INC_DIRS),-I $(dir)) $(PIPE)
+	@touch $@
+
+$(OUTPUT_DIRECTORY)/$(OBJ_DIR)/%.o: %.cpp Makefile
+ifeq ($(V), 0)
+	@echo  -e 'CXX\t$<'
+endif
+	@mkdir -p '$(dir $@)'
+	$(SUPPRESS_CMD)$(CXX) -c $< -o $@ $(DEP_FLAGS) $(CXX_FLAGS) $(foreach dir,$(INC_DIRS),-I $(dir)) $(PIPE)
+	@touch $@
+
+#Pull in dependency info for *existing* .o files
+-include $(OBJ_FILES:.o=.d)
